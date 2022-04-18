@@ -1,0 +1,128 @@
+{% load main_extras %}
+{% load humanize %}
+<div class="row justify-content-end h-auto">
+    {% if user.is_authenticated %}
+        <button type="button" class="btn btn-danger btn-lg w-auto mb-1" data-bs-toggle="modal"
+                onclick="$('#reply_to').val('');$('#reply_content').html('');"
+                data-bs-target="#myModal"
+                style="float: right">NEW REPLY
+        </button>
+    {% else %}
+        <button type="button" onclick="window.location.href='/account/login'"
+                class="btn btn-danger btn-lg w-auto mb-1"
+                style="float: right">NEW REPLY
+        </button>
+    {% endif %}
+</div>
+<div class="row overflow-auto" style="height: 92%!important;">
+    <div class="list-group">
+        {% for comment in post.postcomment_set.all %}
+            <div class="list-group-item list-group-item-action d-flex gap-3 pd-3" aria-current="true">
+                <div class="w-100">
+                    <small>#{{ comment.comment_position }}</small>
+                    <small class="text-black">{{ comment.user.user.username }} </small><span
+                        class="text-muted text-center justify-content-center"
+                        style="font-size: 0.5rem">{{ comment.create_date|timesince2 }}</span>
+                    {% if comment.quote %}
+                        <blockquote class="text-muted my-0">
+                            {{ comment.quote.content }}
+                        </blockquote>
+                    {% endif %}
+                    <h6 class="mb-0">{{ comment.content|linebreaksbr }}</h6>
+                    {% if forloop.first %}
+                        <p class="mb-0 opacity-75">{% for tag in post.tag_set.all %}#{{ tag.name }}{% endfor %}</p>
+                    {% endif %}
+                    <div class="row ">
+                        {% if comment|is_liked:user %}
+                            <a class="bi bi-hand-thumbs-up-fill col-auto pe-0" aria-current="true"
+                               style="color: black;text-decoration: none;">{{ comment.like }}</a>
+                            <a class="bi bi-hand-thumbs-down col-auto pe-0" aria-current="true"
+                               style="color: black;text-decoration: none;">{{ comment.dislike }}</a>
+                        {% elif comment|is_disliked:user %}
+                            <a class="bi bi-hand-thumbs-up col-auto pe-0" aria-current="true"
+                               style="color: black;text-decoration: none;">{{ comment.like }}</a>
+                            <a class="bi bi-hand-thumbs-down-fill col-auto pe-0" aria-current="true"
+                               style="color: black;text-decoration: none;">{{ comment.dislike }}</a>
+                        {% else %}
+                            <form method="post" id="like-{{ comment.id }}" class="col-auto pe-0" action="/post/{{ comment.id }}/">
+                                {% csrf_token %}
+                                <input type="hidden" name="like" value="true">
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="button" id="like-button-{{ comment.id }}" class="bi bi-hand-thumbs-up" aria-current="true"
+                                        onclick="$.ajax({url: '/post/{{ comment.id }}/', type: 'post', dataType: 'json', data: $('#like-{{ comment.id }}').serialize(), success: function(data) {const button = $('#like-button-{{ comment.id }}'); button.attr('class', 'bi-hand-thumbs-up-fill'); button.text(parseInt(button.text()) + 1)}})"
+                                        style="color: black; padding: 0;border: none;background: none;">{{ comment.like }}</button>
+                            </form>
+                            <form method="post" id="dislike-{{ comment.id }}" class="col-auto pe-0" action="/post/{{ comment.id }}/">
+                                {% csrf_token %}
+                                <input type="hidden" name="like" value="false">
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <button type="button" id="dislike-button-{{ comment.id }}" class="bi bi-hand-thumbs-down" aria-current="true"
+                                        onclick="$.ajax({url: '/post/{{ comment.id }}/', type: 'post', dataType: 'json', data: $('#dislike-{{ comment.id }}').serialize(), success: function(data) {const button = $('#dislike-button-{{ comment.id }}'); button.attr('class', 'bi-hand-thumbs-down-fill'); button.text(parseInt(button.text()) + 1)}})"
+                                        style="color: black; padding: 0;border: none;background: none;">{{ comment.dislike }}</button>
+                            </form>
+                        {% endif %}
+                        <div class="col-auto" style="float: right!important;">
+                            <button type="submit" class="bi bi-reply"
+                                    onclick="$('#reply_to').val('{{ comment.comment_position }}');
+                                            $('#reply_content').html('#{{ comment.comment_position }} {{ comment.user.user.username }}<br>{{ comment.content|linebreaksbr }}');"
+                                    data-bs-toggle="modal" data-bs-target="#myModal"
+                                    style="color: black; padding: 0;border: none;background: none;"></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+<div class="modal fade" id="myModal" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body">
+                <strong class="modal-title">Reply to:
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
+                            style="float: right;"></button>
+                    <br>
+                    POST: <small>{{ post.title }}</small>
+                </strong>
+                <form id="new-reply" class="form-group needs-validation" action="/category/{{ post.category.id }}/{{ post.id }}/new" method="post" novalidate>
+                    {% csrf_token %}
+                    <input type="hidden" id="reply_to" name="reply_to" value="" style="border: transparent"
+                           readonly>
+                    <div id="reply_content" class="text-muted">{{ comment.content|linebreaksbr }}</div>
+                    <div class="validate-me">
+                        <label for="content"><strong>content:</strong>:</label>
+                        <textarea class="form-control mb-2" rows="7" name="content" id="content"
+                                  placeholder="Enter your content here" required></textarea>
+                        <div class="invalid-feedback">
+                            Please enter your content.
+                        </div>
+                    </div>
+                    <div class="form-check" style="float: right">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button"
+                                onclick="if (!$('#new-reply')[0].checkValidity()) {$('#new-reply')[0].classList.add('was-validated');return}
+                                $.ajax({url: '/category/{{ post.category.id }}/{{ post.id }}/new', type: 'post', dataType: 'json', data: $('#new-reply').serialize(), success: function(data) {flash_post('{{ post.category.id }}', '{{ post.id }}');$('.modal-backdrop').remove();}})"
+                                class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>

@@ -1,0 +1,23 @@
+{% extends "profile.html" %}
+{% load main_extras %}
+{% block subject %}{% endblock %}
+{% block post %}
+<div class="col-md-9">
+    <div class="card">
+        <div class="card-header">Recent posts</div>
+        {% for post in posts %}
+            <a href="/category/{{ post.category.id }}/{{ post.id }}" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div>
+                        <small class="opacity-50 text-muted">#{{ post.user.user.username }} {{ post.create_date|timesince2 }}</small>
+                        <small class="bi {% if post.postcomment_set.all.first|pos_like %}bi-hand-thumbs-up-fill{% else %}bi-hand-thumbs-down-fill{% endif %} opacity-50 text-dark">{{ post.postcomment_set.all.first|sub_like }}</small>
+                        <h6 class="mb-0">{{ post.title }}</h6>
+                        <p class="mb-0 opacity-75">{% for tag in post.tag_set.all %}#
+                            {{ tag.name }}{% endfor %}</p>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

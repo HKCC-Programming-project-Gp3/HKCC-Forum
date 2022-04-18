@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load main_extras %}
+{% block body %}
+    <div class="my-5 container" id="main_container">
+        <div class="mb-5 row justify-content-center">
+            <h1 class="col-9 text-center"><strong>Profile</strong></h1>
+            <div class="col-md-9 mb-3">
+                <a href="/account/profile/" class="card list-group-item list-group-item-action">
+                    <h3 class="my-3 text-center text-muted">{{ user.username }}</h3>
+                </a>
+            </div>
+            <div class="col-md-9 mb-3">
+                <div class="card">
+                    <div class="card-header">Statistics</div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-12 col-sm-6">
+                                <h2><strong>{{ user.forumuser.post_set.all.count }}</strong></h2>
+                                <p><small>created posts</small></p>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <h3>{{ user.date_joined }}</h3>
+                                <p><small>account create day</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% block subject %}
+                <div class="col-md-9 mb-3">
+                    <div class="card">
+                        <div class="card-header">subject</div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-12 col-sm-6">
+                                    <h2><strong>1</strong></h2>
+                                    <p><small>subject gp in this sam</small></p>
+                                </div>
+                                <div class="col-12 col-sm-6">
+                                    <h2><strong>1</strong></h2>
+                                    <p><small>subject count</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endblock %}
+            {% block post %}
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header">Recent posts&nbsp;<a href="/account/post/" style="text-decoration: none;">(View all)</a></div>
+            <a href="/category/{{ post.category.id }}/{{ post.id }}" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                <div class="d-flex gap-2 w-100 justify-content-between">
+                    <div>
+                        <small class="opacity-50 text-muted">#{{ post.user.user.username }} {{ post.create_date|timesince2 }}</small>
+                        <small class="bi {% if post.postcomment_set.all.first|pos_like %}bi-hand-thumbs-up-fill{% else %}bi-hand-thumbs-down-fill{% endif %} opacity-50 text-dark">{{ post.postcomment_set.all.first|sub_like }}</small>
+                        <h6 class="mb-0">{{ post.title }}</h6>
+                        <p class="mb-0 opacity-75">{% for tag in post.tag_set.all %}#
+                            {{ tag.name }}{% endfor %}</p>
+                    </div>
+                </div>
+            </a>
+                    </div>
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+    <div class="text-center">
+
+    <a href="/account/edit/" class="col-8 btn btn-secondary btn-lg content-center">Edit profile</a>
+    </div>
+{% endblock %}
+    

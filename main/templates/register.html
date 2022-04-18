@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block body %}
+    <div class="my-5 container" id="main_container">
+        <div class="row">
+            <div class="col-12">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="mx-auto col-md-6 col-md-offset-3 vertical-offset-100">
+                <div class="card">
+                    <div class="card-header"><h3 class="m-0 card-title h5"><strong>Sign up</strong></h3></div>
+                    <div class="card-body">
+                        <form method="post" class="form needs-validation" enctype="multipart/form-data" novalidate oninput='password2.setCustomValidity(password2.value != password1.value ? "Passwords do not match." : "")'>
+                            {% csrf_token %}
+                            <div id="div_id_username" class="form-group">
+                                <label class="control-label" for="id_username">Username</label>
+                                <input type="text" name="username" maxlength="150" autofocus="" class="form-control" required="" id="id_username">
+                                {% if form.errors.username %}
+                                    <span class="text-danger">{{ form.errors.username }}</span>
+                                {% else %}
+                                    <p class="help-block text-muted"><small>Required. 100 characters or fewer. Letters, digits and @/./+/-/_ only.</small></p>
+                                {% endif %}
+                            </div>
+                            <div id="div_id_email" class="form-group">
+                                    <label class="control-label" for="id_email">Email address</label>
+                                    <input type="email" name="email" class="form-control" required="" id="id_email">
+                                    {% if form.errors.email %}
+                                        <span class="text-danger">{{ form.errors.email }}</span>
+                                    {% endif %}
+                            </div>
+                            <div id="div_id_password1" class="form-group">
+                                    <label class="control-label" for="id_password1">Password</label>
+                                    <input type="password" name="password1" autocomplete="new-password"
+                                           class="form-control" required="" id="id_password1">
+                                    <span class="text-danger">{{ form.errors.password2 }}</span>
+                                    <ul>
+                                        <li><small>Your password can’t be too similar to your other personal
+                                            information.</small></li>
+                                        <li><small>Your password must contain at least 8 characters.</small></li>
+                                        <li><small>Your password can’t be a commonly used password.</small></li>
+                                        <li><small>Your password can’t be entirely numeric.</small></li>
+                                    </ul>
+                                    <p></p>
+                            </div>
+                            <div id="div_id_password2" class="form-group">
+                                    <label class="control-label" for="id_password2">Password confirmation</label>
+                                    <input type="password" name="password2" autocomplete="new-password"
+                                           class="form-control" required="" id="id_password2">
+                                    <div class="invalid-feedback">
+                                        Please enter your Password Correctly.
+                                    </div>
+                                    {% if form.errors.password1 %}
+                                    <span class="text-danger">{{ form.errors.password1 }}</span>
+                                    {% else %}
+                                    <p class="help-block text-muted"><small>Enter the same password as before, for verification.</small></p>
+                                    {% endif %}
+                            </div>
+                            <div class="form-actions">
+                                <input type="submit" class="btn btn-large btn-primary" value="Register">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<script>
+(function () {
+  var forms = document.querySelectorAll('.needs-validation')
+  Array.prototype.slice.call(forms)
+    .forEach(function (form) {
+      form.addEventListener('submit', function (event) {
+        if (!form.checkValidity()) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+
+        form.classList.add('was-validated')
+      }, false)
+    })
+})()
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block body %}
+<style>
+  .form-signin {
+      width: 100%;
+      max-width: 330px;
+      padding: 15px;
+      margin: auto;
+  }
+</style>
+<main class="form-signin text-center">
+<form method="post" action="{% url 'login' %}">
+{% csrf_token %}
+      <br>
+      <br>
+      <br>
+      <br>
+    <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+    <div class="form-floating">
+      <input type="text" class="form-control" name="username" id="username" placeholder="User Name">
+      <label for="username">User Name</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+      <label for="password">Password</label>
+    </div>
+      <br>
+      <div class="d-grid gap-2">
+        <button class="w-100 btn btn-lg btn-danger" type="submit">Sign in</button>
+        {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+        <a href="/account/register">
+            <button class="w-75 btn btn-sm btn-danger mb-3" type="button">register</button>
+        </a>
+      </div>
+  </form>
+</main>
+{% endblock %}

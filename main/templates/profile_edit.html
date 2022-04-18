@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block nav-link-3 %}active{% endblock %}
+{% block body %}
+    <div class="container">
+        <main>
+            <div class="col-12">
+                <h4 class="mb-3">Edit Profile</h4>
+                <form class="needs-validation" method="post" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="input-group has-validation">
+                                <span class="input-group-text">User Name</span>
+                                <input type="text" class="form-control" name="username" id="username"
+                                       placeholder="Username" value="{{ user.username }}" readonly>
+                            </div>
+                            <div class="col-sm-12">
+                                <label for="firstName" class="form-label">New user name </label>
+                                <input type="text" class="form-control" name="first_name" id="first_name" placeholder=""
+                                       value="{{ user.first_name }}">
+                            </div>
+                            <div class="col-12">
+                                <label for="password" class="form-label">Old Password(Required)</label>
+                                <input type="password" class="form-control" name="password" id="password"
+                                       placeholder="Password" value="" required>
+                                <div class="invalid-feedback">
+                                    Old Password must be entered to change profile
+                                </div>
+                                <label for="password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" name="password" id="password"
+                                       placeholder="Password" value="">
+                            </div>
+                        </div>
+                        <!--
+                        <div class="col-12">
+                          <label for="email" class="form-label" >Email <span class="text-muted">(Optional)</span></label>
+                          <input type="email" class="form-control" name="email" id="email" placeholder="you@example.com" value="{{ user.email }}">
+                            <div class="invalid-feedback">
+                                Please enter your email correctly.
+                            </div>
+                        </div>-->
+                    </div>
+                    <hr class="my-4">
+                    <button class="col-12 btn-secondary btn-lg content-center" type="submit">Update profile</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+
+    <script>
+        (function () {
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })();
+    </script>
+{% endblock %}

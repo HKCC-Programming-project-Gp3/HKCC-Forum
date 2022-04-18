@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>forum</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <meta name="HandheldFriendly" content="true">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+            crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        .active {
+            color: black !important;
+            background-color: white !important;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dropdown-toggle::after {
+            color: white !important;
+        }
+
+        .btn-toggle {
+            display: inline-flex;
+            align-items: center;
+            padding: .25rem .5rem;
+            font-weight: 600;
+            color: rgba(0, 0, 0, .65);
+            background-color: transparent;
+            border: 0;
+        }
+
+        .btn-toggle::before {
+            color: white !important;
+            width: 1.25em;
+            line-height: 0;
+            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+            transition: transform .35s ease;
+            transform-origin: .5em 50%;
+        }
+
+        .btn-toggle[aria-expanded="true"]::before {
+            transform: rotate(90deg);
+        }
+
+        .btn-toggle-nav a {
+            display: inline-flex;
+            padding: .1875rem .5rem;
+            margin-top: .125rem;
+            margin-left: 1.25rem;
+            text-decoration: none;
+        }
+
+        blockquote:before {
+            content: "|";
+        }
+    </style>
+</head>
+<body style="height: 100%; position: relative;">
+<div class="row flex-nowrap h-100 w-100" style="--bs-gutter-x: 0rem;">
+    <div class="col-auto px-0">
+        <div id="sidebar" class="collapse collapse-horizontal h-100">
+            <div class="d-flex flex-column flex-shrink-0 p-3 bg-danger h-100" id="nav-sidebar">
+                <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-dark text-decoration-none">
+                    <span class="fs-4">Forum</span>
+                </a>
+                <hr>
+                <ul class="nav nav-pills flex-column mb-auto">
+                    <li class="nav-item">
+                        <a href="" class="nav-link active" aria-current="page">
+                            <i class="bi bi-house"></i> Home
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" class="nav-link link-dark text-white">
+                            <i class="bi bi-bell"></i>
+                            Notifications
+                        </a>
+                    </li>
+                    <li>
+                        <ul class="list-unstyled ps-0">
+                            {% for parent in categorys %}
+                                <li class="mb-1">
+                                    <button class="btn btn-toggle align-items-center rounded collapsed text-white"
+                                            data-bs-toggle="collapse" data-bs-target="#coll-{{ forloop.counter }}"
+                                            aria-expanded="false">
+                                        {{ parent.name }}
+                                    </button>
+                                    <div class="collapse" id="coll-{{ forloop.counter }}">
+                                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                                            {% for child in parent.category_set.all %}
+                                                <li><a href="/category/{{ child.id }}"
+                                                       class="link-dark rounded text-white">{{ child.name }}</a></li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                </ul>
+                <hr>
+                {% if user.is_authenticated %}
+                    <div class="dropdown">
+                        <a href="#" class="d-flex align-items-center link-dark text-decoration-none dropdown-toggle"
+                           id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+                            <strong class="text-white">{{ user.username }}</strong>
+                        </a>
+                        <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+                            <li><a class="dropdown-item" href="/account/edit">Setting</a></li>
+                            <li><a class="dropdown-item" href="/account/profile">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="/account/logout">Sign out</a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="/account/login" style=" color: transparent"><strong class="text-white">Sign in</strong></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col px-0 w-100">
+        <header class="col-auto auto navbar navbar-expand-lg navbar-dark bg-danger fixed-top mb-1"
+                style="position: sticky;">
+            <form class="mx-1 w-100" role="search" action="/search/">
+                <table style="width:100%">
+                    <tr>
+                        <Th width="10%">
+                            <a href="#" data-bs-target="#sidebar" data-bs-toggle="collapse" class="rounded-3"
+                               aria-expanded="true" style="float: right">
+                                <i class="bi-list border-white btn btn-outline-light py-1 px-2"
+                                   style="font-size: 1rem;"></i>
+                            </a>
+                        </Th>
+                        <th width="5%">
+                            <a class="navbar-brand me-0" href="/">
+                                <center>HKCC</center>
+                            </a>
+                        </th>
+                        <th width="60%">
+                            <input size="100" type="search" class="form-control" placeholder="Search"
+                                   aria-label="Search" name="search">
+                        </th>
+                        <th width="9%">
+                            <button class="btn btn-outline-light" type="submit"><strong>Search</strong></button>
+                        </th>
+                        <th width="11%">
+                            {% if user.is_authenticated %}
+                                <div class="dropdown">
+                                    <a href=""
+                                       class="mx-2 align-items-center link-dark text-decoration-none dropdown-toggle"
+                                       id="dropdownUser2" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <strong class="text-white">{{ user.username }}</strong>
+                                    </a>
+                                    <ul class="dropdown-menu text-small shadow" aria-labelledby="dropdownUser2">
+                                        <li><a class="dropdown-item" href="/account/edit">Setting</a></li>
+                                        <li><a class="dropdown-item" href="/account/profile">Profile</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider">
+                                        </li>
+                                        <li><a class="dropdown-item" href="/account/logout">Sign out</a></li>
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <a onclick="window.location.href='/account/login'" class="btn btn-outline-light mx-2"
+                                        style="float: left"><strong>Sign in</strong>
+                                </a>
+                            {% endif %}
+                        </th>
+                    </tr>
+                </table>
+            </form>
+        </header>
+        <div class="col ps-3" style="height: 92%">
+            {% block body %}
+            {% endblock %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
