@@ -1,11 +1,14 @@
 import json
 from django.contrib import messages
-from django.contrib.auth import views as auth_view, logout, login
+from django.contrib.auth import views as auth_view, logout, login, authenticate
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.password_validation import validate_password
+from django.db.models import F, Q, QuerySet
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.clickjacking import xframe_options_exempt
 from .forms import NewUserForm
-from .models import Category, Post, PostComment, PostLike, PostDislike, Tag
+from .models import Category, ChatMessage, Post, PostComment, PostLike, PostDislike, Tag, User
 from .templatetags.main_extras import is_liked, is_disliked
 
 from django.db.models import Q
@@ -105,29 +108,15 @@ def test(request):
     return render(request, 'test1.html', default_value(request))
 
 
-def account(request):
-    if request.user.is_authenticated:
-        return redirect("profile")
-    else:
-        return redirect("login")
-
-
-def account_post(request):
-    if not request.user.is_authenticated:
-        return redirect("login")
-    else:
-        posts = Post.objects.filter(user=request.user.forumuser).order_by("create_date")
-        return render(request, 'profile_post.html', default_value(request, {"posts": posts}))
-
-
-def account_edit(request):
-    return render(request, 'profile_edit.html', default_value(request))
-
-
 class Login(auth_view.LoginView):
     template_name = "login.html"
     next_page = ""
     redirect_authenticated_user = True
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
 
 
 def register(request):
@@ -146,6 +135,71 @@ def register(request):
     return render(request, "register.html", {"form": form})
 
 
+def chat(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+    if request.method == "GET" or request.method == "POST" and request.POST['subview'] == 'true':
+        user = request.user.forumuser
+        chats_cache = ChatMessage.objects.filter(Q(sender=user) | Q(receiver=user)).order_by("create_date")
+        chats = chats_cache.all()
+        for i in chats_cache:
+            if i.sender != user:
+                if chats.filter(Q(sender=i.sender) | Q(receiver=i.sender)).count() > 1:
+                    chats = chats.exclude(id=i.id)
+            elif i.receiver != user:
+                if chats.filter(Q(sender=i.receiver) | Q(receiver=i.receiver)).count() > 1:
+                    chats = chats.exclude(id=i.id)
+        chats = chats.order_by(F("create_date").desc())
+        if "name" in request.GET.keys() and request.GET["name"] != user.user.username or "name" in request.POST.keys() and request.POST["name"] != user.user.username:
+            if request.method == "GET":
+                current = User.objects.get(username=request.GET["name"]).forumuser
+            else:
+                current = User.objects.get(username=request.POST["name"]).forumuser
+        elif chats.count() > 0:
+            msg = chats.first()
+            if msg.sender != user:
+                current = msg.sender
+            else:
+                current = msg.receiver
+        else:
+            current = None
+        current_chats = chats_cache.filter(Q(sender=current) | Q(receiver=current))
+        if current_chats.count() == 0:
+            new_chat = True
+        else:
+            new_chat = False
+        if current == user:
+            current = None
+        if request.method == "GET":
+            return render(request, 'chat.html', default_value(request, {"chats": chats, "current": current, "current_chats": current_chats, "new_chat": new_chat}))
+        else:
+            return render(request, 'only_chat.html', default_value(request, {"chats": chats, "current": current, "current_chats": current_chats, "new_chat": new_chat}))
+
+
+
+def new_chat_msg(request):
+    if request.method == "POST":
+        sender = User.objects.get(username=request.POST["sender"]).forumuser
+        receiver = User.objects.get(username=request.POST["receiver"]).forumuser
+        ChatMessage.objects.create(sender=sender,receiver=receiver, content=request.POST["content"])
+    return redirect("chat")
+
+
+def account(request):
+    if request.user.is_authenticated:
+        return redirect("profile")
+    else:
+        return redirect("login")
+
+
+def account_post(request):
+    if not request.user.is_authenticated:
+        return redirect("login")
+    else:
+        posts = Post.objects.filter(user=request.user.forumuser).order_by("create_date")
+        return render(request, 'profile_post.html', default_value(request, {"posts": posts}))
+
+
 def profile(request):
     if not request.user.is_authenticated:
         return redirect("login")
@@ -154,14 +208,30 @@ def profile(request):
         return render(request, 'profile.html', default_value(request, {"post": post}))
 
 
-def logout_view(request):
-    logout(request)
-    return redirect("login")
+def account_edit(request):
+    if request.method == "POST":
+        if check_password(request.POST["password"], request.user.password) and request.POST["new_password"] == request.POST["new_password2"]:
+            try:
+                validate_password(request.POST["new_password"], request.user)
+                request.user.set_password(request.POST["new_password"])
+                request.user.save()
+                return render(request, 'profile_edit.html', default_value(request, {"success": "true"}))
+            except Exception as e:
+                return render(request, 'profile_edit.html', default_value(request, {"errors": e}))
+        else:
+            return render(request, 'profile_edit.html', default_value(request, {"pass_not_correct": "the password is not correct"}))
+    return render(request, 'profile_edit.html', default_value(request))
 
 
 def search_post(request):
-    query = request.GET.get("search")
-    results = Post.objects.filter(
-        Q(title__icontains=query) | Q(tag__name__icontains=query)
-    )
+    if request.GET.get("search")[0] == '#':
+        query = request.GET.get("search")[1:]
+        results = Post.objects.filter(
+            Q(tag__name__icontains=query)
+        )
+    else:
+        query = request.GET.get("search")
+        results = Post.objects.filter(
+            Q(title__icontains=query) | Q(tag__name__icontains=query)
+        )
     return render(request, 'index.html', default_value(request, {"posts": results}))

@@ -3,4 +3,5 @@ __pycache__
 test_tools
 venv
 *.zip
+*.7z
 db.sqlite3

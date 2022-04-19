@@ -4,8 +4,11 @@
     <div class="container">
         <main>
             <div class="col-12">
+                {% if success %}<h4 class="mb-3">Password changed</h4>{% endif %}
                 <h4 class="mb-3">Edit Profile</h4>
-                <form class="needs-validation" method="post" novalidate>
+                <form class="needs-validation" method="post"
+                      oninput='console.log(1);document.getElementById("new_password2").setCustomValidity($("#new_password2").val() !== $("#new_password").val() ? "Passwords do not match." : "")'
+                      novalidate>
                     {% csrf_token %}
                     <div class="row g-3">
                         <div class="col-12">
@@ -14,11 +17,6 @@
                                 <input type="text" class="form-control" name="username" id="username"
                                        placeholder="Username" value="{{ user.username }}" readonly>
                             </div>
-                            <div class="col-sm-12">
-                                <label for="firstName" class="form-label">New user name </label>
-                                <input type="text" class="form-control" name="first_name" id="first_name" placeholder=""
-                                       value="{{ user.first_name }}">
-                            </div>
                             <div class="col-12">
                                 <label for="password" class="form-label">Old Password(Required)</label>
                                 <input type="password" class="form-control" name="password" id="password"
@@ -26,9 +24,31 @@
                                 <div class="invalid-feedback">
                                     Old Password must be entered to change profile
                                 </div>
-                                <label for="password" class="form-label">New Password</label>
-                                <input type="password" class="form-control" name="password" id="password"
+                                {% if pass_not_correct %}
+                                    <div class="text-danger">
+                                        <ul class="errorlist">
+                                            <li>{{ pass_not_correct }}</li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <label for="new_password" class="form-label">New Password</label>
+                                <input type="password" class="form-control" name="new_password" id="new_password"
                                        placeholder="Password" value="">
+                                <label for="new_password2" class="form-label">New Password Again</label>
+                                <input type="password" class="form-control" name="new_password2" id="new_password2"
+                                       placeholder="Password" value="">
+                                <div class="invalid-feedback">
+                                    Two new password should be same.
+                                </div>
+                                {% if errors %}
+                                    <div class="text-danger">
+                                        <ul class="errorlist">
+                                            {% for error in errors %}
+                                                <li>{{ error }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
                             </div>
                         </div>
                         <!--

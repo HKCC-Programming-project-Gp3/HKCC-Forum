@@ -1,0 +1,19 @@
+{% load humanize %}
+{% load main_extras %}
+<ul class="list-unstyled">
+    {% for chat in current_chats %}
+        <li class="d-flex justify-content-between mb-3 {% if chat.sender == current %}me-5 pe-5{% else %}ms-5 ps-5{% endif %}">
+            <div class="card w-100">
+                <div class="card-header d-flex justify-content-between p-3">
+                    <p class="fw-bold mb-0">{{ chat.sender }}</p>
+                    <p class="text-muted small mb-0"><i class="far fa-clock"></i>{{ chat.create_date|timesince2 }}</p>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        {{ chat.content|linebreaksbr }}
+                    </p>
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+</ul>

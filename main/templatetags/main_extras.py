@@ -35,9 +35,29 @@ def pos_like(comment: PostComment):
 
 @register.filter
 def timesince2(time):
-    return timesince.timesince(time, depth=1).replace("hours", "h").replace("hour", "h").replace("minutes", "m").replace("minute", "m")
+    try:
+        return timesince.timesince(time, depth=1).replace("hours", "h").replace("hour", "h").replace("minutes",
+                                                                                                     "m").replace(
+            "minute", "m")
+    except Exception:
+        return None
 
 
 @register.filter
 def br_replace(text):
     return text.replace("\n", "<br>")
+
+
+@register.filter
+def too_long_replace(text: str):
+    if len(text) > 100:
+        return text[:65] + "..."
+    else:
+        result = ""
+        cnt = 0
+        for i in text.splitlines():
+            cnt += 1
+            if cnt > 2:
+                return result
+            result += i + "\n"
+        return result

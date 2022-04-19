@@ -69,3 +69,10 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ChatMessage(models.Model):
+    sender = models.ForeignKey(ForumUser, related_name="send_messages", on_delete=models.PROTECT)
+    receiver = models.ForeignKey(ForumUser, related_name="receive_messages", on_delete=models.PROTECT)
+    content = models.TextField()
+    create_date = models.DateTimeField(default=now, editable=False)

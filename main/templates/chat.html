@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% load main_extras %}
+{% block body %}
+    <section style="height: 100%;background-color: #eee;">
+        <div class="container h-100">
+            <div class="row h-100">
+                <div class="col-4 px-0 card h-100">
+                    <h5 class="card-header text-lg-start mb-3">User</h5>
+                    <div class="card-body py-0 h-100">
+                        <div class="overflow-auto list-group" style="height: 90%">
+                            {% if new_chat %}
+                                <a href="/chat/?name={{ current.user.username }}"
+                                   class="list-group-item list-group-item-action d-flex justify-content-between p-2"
+                                   style="background-color: #eee;">
+                                    <div class="d-flex flex-row">
+                                        <div class="pt-1">
+                                            <p class="fw-bold mb-0">{{ current.user.username }}</p>
+                                            <p class="small text-muted">New Chat</p>
+                                        </div>
+                                    </div>
+                                    <div class="pt-1">
+                                        <p class="small text-muted mb-1">now</p>
+                                    </div>
+                                </a>
+                            {% endif %}
+                            {% for chat in chats %}
+                                <a href="/chat/?name={% if chat.sender != user.forumuser %}{{ chat.sender.user.username }}{% else %}{{ chat.receiver.user.username }}{% endif %}"
+                                   class="list-group-item list-group-item-action d-flex justify-content-between p-2"
+                                   {% if chat.sender == current or chat.receiver == current %}style="background-color: #eee;"{% endif %}>
+                                    <div class="d-flex flex-row">
+                                        <div class="pt-1">
+                                            <p class="fw-bold mb-0">
+                                                {% if chat.sender != user.forumuser %}{{ chat.sender }}{% else %}
+                                                    {{ chat.receiver }}{% endif %}</p>
+                                            <p class="small text-muted" style="word-break: break-all">{{ chat.content|too_long_replace|linebreaksbr }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="pt-1">
+                                        <p class="small text-muted mb-1">{{ chat.create_date|timesince2 }}</p>
+                                    </div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-8 py-2" style="height: 72%;">
+                    <div class="overflow-auto h-100" id="chat">
+                        {% include "only_chat.html" %}
+                    </div>
+                    <div class="bg-white mb-3">
+                        <form class="form-group needs-validation" action="/chat/new/" method="post" novalidate>
+                            <div class="card">
+                                {% csrf_token %}
+                                <input hidden type="text" name="sender" value="{{ user.username }}">
+                                <input hidden type="text" name="receiver" value="{{ current.user.username }}">
+                                <div class="card-header d-flex justify-content-between px-3">
+                                    <label for="content" class="form-check-label">Send Message</label>
+                                </div>
+                                <div class="card-body form-inline py-1">
+                                    <textarea class="form-control" id="content" name="content" rows="4"
+                                              required></textarea>
+                                    <button type="submit" class="btn btn-info btn-rounded float-end mt-1">Send</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        (function () {
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        /*setInterval(function () {
+            $('#chat').load("/chat/", {
+                'csrfmiddlewaretoken': '{{ csrf_token }}',
+                'subview': true,
+                "name": "{{ current.user.username }}"
+            });
+        }, 10000);*/
+        $("#chat").scrollTop($("#chat")[0].scrollHeight);
+    </script>
+{% endblock %}
