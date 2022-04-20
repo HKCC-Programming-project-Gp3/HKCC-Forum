@@ -224,7 +224,7 @@ def account_edit(request):
 
 
 def search_post(request):
-    if request.GET.get("search")[0] == '#':
+    if request.GET.get("search") != '' and request.GET.get("search")[0] == '#':
         query = request.GET.get("search")[1:]
         results = Post.objects.filter(
             Q(tag__name__icontains=query)
