@@ -162,7 +162,7 @@ def chat(request):
             else:
                 current = msg.receiver
         else:
-            current = None
+            current = False
         current_chats = chats_cache.filter(Q(sender=current) | Q(receiver=current))
         if current_chats.count() == 0:
             new_chat = True

@@ -9,7 +9,7 @@
                     <h5 class="card-header text-lg-start mb-3">User</h5>
                     <div class="card-body py-0 h-100">
                         <div class="overflow-auto list-group" style="height: 90%">
-                            {% if new_chat %}
+                            {% if new_chat and current %}
                                 <a href="/chat/?name={{ current.user.username }}"
                                    class="list-group-item list-group-item-action d-flex justify-content-between p-2"
                                    style="background-color: #eee;">
@@ -59,8 +59,8 @@
                                 </div>
                                 <div class="card-body form-inline py-1">
                                     <textarea class="form-control" id="content" name="content" rows="4"
-                                              required></textarea>
-                                    <button type="submit" class="btn btn-info btn-rounded float-end mt-1">Send</button>
+                                              required {% if not current %}readonly{% endif %}></textarea>
+                                    <button type="{% if current %}submit{% else %}button{% endif %}" class="btn btn-info btn-rounded float-end mt-1">Send</button>
                                 </div>
                             </div>
                         </form>
