@@ -94,7 +94,7 @@
                     <div class="validate-me">
                         <label for="content"><strong>content:</strong>:</label>
                         <textarea class="form-control mb-2" rows="7" name="content" id="content"
-                                  placeholder="Enter your content here" required></textarea>
+                                  placeholder="Enter your content here" required onkeyup="checkSpace($('#content'))"></textarea>
                         <div class="invalid-feedback">
                             Please enter your content.
                         </div>
@@ -111,20 +111,3 @@
         </div>
     </div>
 </div>
-
-<script>
-    (function () {
-        var forms = document.querySelectorAll('.needs-validation')
-        Array.prototype.slice.call(forms)
-            .forEach(function (form) {
-                form.addEventListener('submit', function (event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-
-                    form.classList.add('was-validated')
-                }, false)
-            })
-    })()
-</script>

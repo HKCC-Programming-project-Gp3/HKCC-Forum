@@ -134,7 +134,7 @@
     <div class="col px-0 w-100">
         <header class="col-auto auto navbar navbar-expand-lg navbar-dark bg-danger fixed-top"
                 style="position: sticky;">
-            <form class="mx-1 w-100" role="search" action="/search/">
+            <form class="mx-1 w-100 needs-validation" role="search" action="/search/" novalidate>
                 <table style="width:100%">
                     <tr>
                         <Th width="10%">
@@ -151,10 +151,13 @@
                         </th>
                         <th width="60%">
                             <input size="100" type="search" class="form-control" placeholder="Search"
-                                   aria-label="Search" name="search">
+                                   aria-label="Search" name="search" required>
+                            <div class="invalid-feedback text-warning">
+                                Please enter your content.
+                            </div>
                         </th>
                         <th width="9%">
-                            <button class="btn btn-outline-light" type="submit"><strong>Search</strong></button>
+                            <button class="btn btn-outline-light ms-2" type="submit"><strong>Search</strong></button>
                         </th>
                         <th width="11%">
                             {% if user.is_authenticated %}
@@ -189,5 +192,28 @@
         </div>
     </div>
 </div>
+<script>
+    (function () {
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+    function checkSpace(element) {
+        if (element.val().trim().length === 0) {
+            element.get(0).setCustomValidity('Invalid field.');
+        } else {
+            element.get(0).setCustomValidity('')
+        }
+    }
+</script>
 </body>
 </html>

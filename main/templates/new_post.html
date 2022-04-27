@@ -16,32 +16,36 @@
                         <form method="post" action="/category/{{ category.id }}/new/" class="form needs-validation"
                               novalidate>
                             {% csrf_token %}
-                            <div id="div_id_subject" class="form-group">
-                                <div class="controls">
-                                    <label class="control-label" for="id_subject">Topic</label>
-                                    <input type="text" name="subject" maxlength="255" placeholder="Enter your Topic"
-                                           class="form-control" required="" id="id_subject">
-                                    <div class="invalid-feedback">
-                                        <strong>Please enter your Subject.</strong>.<br>
-                                    </div>
+                            <divclass
+                            ="form-group">
+                            <div class="controls">
+                                <label class="control-label" for="subject">Topic</label>
+                                <input type="text" name="subject" maxlength="255" placeholder="Enter your Topic"
+                                       class="form-control" required="" id="subject"
+                                onkeyup="checkSpace($('#subject'))">
+                                <div class="invalid-feedback">
+                                    <strong>Please enter your Subject.</strong>.<br>
                                 </div>
                             </div>
-                            <div id="div_id_content" class="form-group">
-                                <label class="control-label" for="id_content">Message</label>
+                            <div class="form-group">
+                                <label class="control-label" for="content">Message</label>
                                 <textarea class="form-control mb-2" name="content" cols="40" rows="10"
-                                          placeholder="Enter your message" required id="id_content"></textarea>
+                                          placeholder="Enter your message" required id="content"
+                                          onkeyup="checkSpace($('#content'))"></textarea>
                                 <div class="invalid-feedback">
                                     <strong>Please enter your Post content.</strong><br><br>
                                 </div>
                             </div>
-                            <div id="div_id_content" class="form-group">
+                            <div class="form-group">
                                 <strong>Tags:</strong>
                                 <div id="tags" class="list-group-item" style="min-height: 55px">
                                 </div>
                                 <input type="text" id="json_tag" name="json_tag" value="" hidden>
                             </div>
-                            <div id="div_id_content" class="form-group">
-                                <label class="control-label my-1" for="addtag">Add Tags <strong>(Limit: at most 3 tags, only accept english character, numbers or _ )</strong></label>
+                            <div class="form-group">
+                                <label class="control-label my-1" for="addtag">Add Tags <strong>(Limit: at most 3 tags,
+                                    only
+                                    accept english character, numbers or _ )</strong></label>
                                 <div class="row pb-2">
                                     <div class="col-auto">
                                         <input class="form-control" type="text" id="addtag"
@@ -65,21 +69,6 @@
         </div>
     </div>
     <script>
-        (function () {
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault()
-                            event.stopPropagation()
-                        }
-
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-        })()
-
         function del_tag(tag) {
             $("#" + tag).remove();
             const json_tag = $("#json_tag");
@@ -91,10 +80,10 @@
         function add_tag() {
             const tag = $('#addtag').val();
             let pattern = /^([a-z]|[A-Z]|[0-9]|_|(?! ))*$/
-            if(!pattern.test(tag)){
+            if (!pattern.test(tag)) {
                 $("#WARNING").removeAttr("hidden");
                 return;
-            }else{
+            } else {
                 $("#WARNING").attr("hidden", true);
             }
             if ($("#" + tag).length === 0) {

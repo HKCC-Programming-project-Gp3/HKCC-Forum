@@ -59,7 +59,7 @@
                                 </div>
                                 <div class="card-body form-inline py-1">
                                     <textarea class="form-control" id="content" name="content" rows="4"
-                                              required {% if not current %}readonly{% endif %}></textarea>
+                                              required onkeyup="checkSpace($('#content'))" {% if not current %}readonly{% endif %}></textarea>
                                     <button type="{% if current %}submit{% else %}button{% endif %}" class="btn btn-info btn-rounded float-end mt-1">Send</button>
                                 </div>
                             </div>
@@ -69,28 +69,4 @@
             </div>
         </div>
     </section>
-    <script>
-        (function () {
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms)
-                .forEach(function (form) {
-                    form.addEventListener('submit', function (event) {
-                        if (!form.checkValidity()) {
-                            event.preventDefault()
-                            event.stopPropagation()
-                        }
-
-                        form.classList.add('was-validated')
-                    }, false)
-                })
-        })()
-        /*setInterval(function () {
-            $('#chat').load("/chat/", {
-                'csrfmiddlewaretoken': '{{ csrf_token }}',
-                'subview': true,
-                "name": "{{ current.user.username }}"
-            });
-        }, 10000);*/
-        $("#chat").scrollTop($("#chat")[0].scrollHeight);
-    </script>
 {% endblock %}
